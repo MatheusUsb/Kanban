@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quadro Kanban</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div id="header">
+        <h1>Kanban</h1>
+        <p>Desenvolvido por Matheus Gouvea.</p>
+    </div>
+    <div class="container">
+        <div class="column" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2 class="todo">A Fazer</h2>
+            <button onclick="addTask('todo')">Adicionar Tarefa</button>
+        </div>
+        <div class="column" id="in-progress" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2 class="in-progress">Fazendo</h2>
+            <button onclick="addTask('in-progress')">Adicionar Tarefa</button>
+        </div>
+        <div class="column" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2 class="done">Concluído</h2>
+            <button onclick="addTask('done')">Adicionar Tarefa</button>
+        </div>
+    </div>
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            ev.target.appendChild(document.getElementById(data));
+            saveTasksToLocalStorage();
+        }
+
+        function deleteTask(task) {
+            if (confirm('Tem certeza que deseja excluir este registro?')) {
+                task.remove();
+                saveTasksToLocalStorage();
+            }
+        }
+
+        function addTask(columnId) {
+            const taskDescriptionText = prompt('Digite a descrição da tarefa:');
+            if (taskDescriptionText === null || taskDescriptionText.trim() === '') {
+                return;
+            }
+
+            const task = document.createElement('div');
+            task.className = 'task';
+            task.draggable = true;
+            task.id = Math.random().toString(36).substring(2);
+            task.ondragstart = drag;
+
+            const taskDescription = document.createElement('span');
+            taskDescription.innerText = taskDescriptionText;
+            task.appendChild(taskDescription);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Deletar';
+            deleteButton.style.float = 'right';
+            deleteButton.onclick = function(e) {
+                e.stopPropagation();
+                deleteTask(task);
+            };
+            task.appendChild(deleteButton);
+
+            const column = document.getElementById(columnId);
+            column.appendChild(task);
+            saveTasksToLocalStorage();
+        }
+
+        function saveTasksToLocalStorage() {
+            const columns = document.getElementsByClassName('column');
+            const tasks = Array.from(columns).map(column => Array.from(column.getElementsByClassName('task')).map(task => task.firstChild.innerText));
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasksFromLocalStorage() {
+            const tasks = JSON.parse(localStorage.getItem('tasks'));
+            if (tasks) {
+                const columns = document.getElementsByClassName('column');
+                tasks.forEach((columnTasks, columnIndex) => {
+                    columnTasks.forEach(taskDescription => {
+                        const task = document.createElement('div');
+                        task.className = 'task';
+                        task.draggable = true;
+                        task.id = Math.random().toString(36).substring(2);
+                        task.ondragstart = drag;
+
+                        const taskDescriptionElement = document.createElement('span');
+                        taskDescriptionElement.innerText = taskDescription;
+                        task.appendChild(taskDescriptionElement);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.innerText = 'Deletar';
+                        deleteButton.style.float = 'right';
+                        deleteButton.onclick = function(e) {
+                            e.stopPropagation();
+                            deleteTask(task);
+                        };
+                        task.appendChild(deleteButton);
+
+                        columns[columnIndex].appendChild(task);
+                    });
+                });
+            }
+        }
+
+        loadTasksFromLocalStorage();
+    </script>
+</body>
+</html>
