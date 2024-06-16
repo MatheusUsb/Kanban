@@ -1,55 +1,96 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #202020; /* Dark grey (almost black) background */
-    color: #ffffff; /* White text */
+html, body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
     margin: 0;
     padding: 0;
+    height: 100%; /* 100% da altura da página */
+    background-color: #3a312b; /* Cor de fundo cinza */
 }
 
-.container {
+.kanban-container {
     display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    height: 100vh;
+    justify-content: center;
+    width: 100%;
+    height: 100%; /* 100% da altura disponível */
+    margin: auto;
 }
 
-.column {
+.kanban-column {
     flex: 1;
     margin: 0 10px;
-    padding: 10px;
     border-radius: 5px;
-    background-color: #303030; /* Slightly lighter grey for the columns */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    background-color: #312d2a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     overflow-y: auto;
+    transition: background-color 0.3s ease;
+    font-size: 15px; /* Adicionado para definir o tamanho do texto padrão */
+    height: 30vh; /* Adicionado para expandir as colunas para baixo */
 }
 
-.column h2 {
+.kanban-column h2 {
     margin: 0 0 10px;
     text-align: center;
     font-size: 20px;
+    color: #424242;
 }
 
 .task {
     margin: 10px 0;
     padding: 10px;
     border-radius: 3px;
-    background-color: #404040; /* Even lighter grey for the tasks */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    background-color: #bdbdbd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     cursor: move;
+    color: #424242;
+    transition: all 0.3s ease; /* Ajustado para incluir todas as propriedades */
 }
 
-.column h2.todo {
-    color: #007bff; 
+.task:hover {
+    background-color: #dcdcdc; /* Adicionado para mudar a cor de fundo quando o mouse passa sobre ela */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Aumentado para um efeito de "levantamento" mais sutil */
+}
+.kanban-column h2.todo {
+    color: #3f51b5;
 }
 
-.column h2.in-progress {
-    color: #ffc107; 
+.kanban-column h2.in-progress {
+    color: #ff9800;
 }
 
-.column h2.done {
-    color: #28a745; 
+.kanban-column h2.done {
+    color: #4caf50;
 }
 
 #header {
     text-align: center;
+}
+
+.delete-button {
+    background-color: #f44336;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+    background-color: #e57373;
+}
+
+#colorButton {
+    padding: 10px 20px;
+    font-size: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#colorButton:hover {
+    background-color: #3f51b5;
+    color: #ffffff;
 }

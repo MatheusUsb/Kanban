@@ -3,117 +3,50 @@
 <head>
     <title>Quadro Kanban</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
     <div id="header">
         <h1>Kanban</h1>
         <p>Desenvolvido por Matheus Gouvea.</p>
     </div>
-    <div class="container">
-        <div class="column" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="kanban-container">
+        <div class="kanban-column" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
             <h2 class="todo">A Fazer</h2>
             <button onclick="addTask('todo')">Adicionar Tarefa</button>
         </div>
-        <div class="column" id="in-progress" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div class="kanban-column" id="in-progress" ondrop="drop(event)" ondragover="allowDrop(event)">
             <h2 class="in-progress">Fazendo</h2>
             <button onclick="addTask('in-progress')">Adicionar Tarefa</button>
         </div>
-        <div class="column" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div class="kanban-column" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
             <h2 class="done">Concluído</h2>
             <button onclick="addTask('done')">Adicionar Tarefa</button>
         </div>
     </div>
-    <script>
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
-
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            var data = ev.dataTransfer.getData("text");
-            ev.target.appendChild(document.getElementById(data));
-            saveTasksToLocalStorage();
-        }
-
-        function deleteTask(task) {
-            if (confirm('Tem certeza que deseja excluir este registro?')) {
-                task.remove();
-                saveTasksToLocalStorage();
-            }
-        }
-
-        function addTask(columnId) {
-            const taskDescriptionText = prompt('Digite a descrição da tarefa:');
-            if (taskDescriptionText === null || taskDescriptionText.trim() === '') {
-                return;
-            }
-
-            const task = document.createElement('div');
-            task.className = 'task';
-            task.draggable = true;
-            task.id = Math.random().toString(36).substring(2);
-            task.ondragstart = drag;
-
-            const taskDescription = document.createElement('span');
-            taskDescription.innerText = taskDescriptionText;
-            task.appendChild(taskDescription);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.innerText = 'Deletar';
-            deleteButton.style.float = 'right';
-            deleteButton.onclick = function(e) {
-                e.stopPropagation();
-                deleteTask(task);
-            };
-            task.appendChild(deleteButton);
-
-            const column = document.getElementById(columnId);
-            column.appendChild(task);
-            saveTasksToLocalStorage();
-        }
-
-        function saveTasksToLocalStorage() {
-            const columns = document.getElementsByClassName('column');
-            const tasks = Array.from(columns).map(column => Array.from(column.getElementsByClassName('task')).map(task => task.firstChild.innerText));
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        function loadTasksFromLocalStorage() {
-            const tasks = JSON.parse(localStorage.getItem('tasks'));
-            if (tasks) {
-                const columns = document.getElementsByClassName('column');
-                tasks.forEach((columnTasks, columnIndex) => {
-                    columnTasks.forEach(taskDescription => {
-                        const task = document.createElement('div');
-                        task.className = 'task';
-                        task.draggable = true;
-                        task.id = Math.random().toString(36).substring(2);
-                        task.ondragstart = drag;
-
-                        const taskDescriptionElement = document.createElement('span');
-                        taskDescriptionElement.innerText = taskDescription;
-                        task.appendChild(taskDescriptionElement);
-
-                        const deleteButton = document.createElement('button');
-                        deleteButton.innerText = 'Deletar';
-                        deleteButton.style.float = 'right';
-                        deleteButton.onclick = function(e) {
-                            e.stopPropagation();
-                            deleteTask(task);
-                        };
-                        task.appendChild(deleteButton);
-
-                        columns[columnIndex].appendChild(task);
-                    });
-                });
-            }
-        }
-
-        loadTasksFromLocalStorage();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
+<!--
+MIT License
+
+Copyright (c) 2024 Matheus Alex Silva Gouvea
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->

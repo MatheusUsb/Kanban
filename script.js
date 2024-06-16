@@ -1,94 +1,113 @@
-let dragged;
-
-function handleDragStart(event) {
-    dragged = this;
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/html', this.outerHTML);
+function allowDrop(ev) {
+    ev.preventDefault();
 }
 
-function handleDragOver(event) {
-    if (event.preventDefault) {
-        event.preventDefault();
-    }
-    this.classList.add('over');
-    event.dataTransfer.dropEffect = 'move';
-    return false;
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
 }
 
-function handleDragEnter(event) {
-    this.classList.add('over');
-}
-
-function handleDragLeave(event) {
-    this.classList.remove('over');
-}
-
-function handleDrop(event) {
-    if (event.stopPropagation) {
-        event.stopPropagation();
-    }
-    if (dragged != this) {
-        this.parentNode.removeChild(dragged);
-        const dropHTML = event.dataTransfer.getData('text/html');
-        this.insertAdjacentHTML('beforebegin',dropHTML);
-        const dropElem = this.previousSibling;
-        addDnDHandlers(dropElem);
-    }
-    this.classList.remove('over');
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
     saveTasksToLocalStorage();
-    return false;
 }
 
-function handleDragEnd(event) {
-    this.classList.remove('over');
+function deleteTask(task) {
+Swal.fire({
+title: 'Tem certeza que deseja excluir este registro?',
+icon: 'warning',
+showCancelButton: true,
+confirmButtonColor: '#3085d6',
+cancelButtonColor: '#d33',
+confirmButtonText: 'Sim, deletar!',
+cancelButtonText: 'Não, cancelar!'
+}).then((result) => {
+if (result.isConfirmed) {
+    task.remove();
+    saveTasksToLocalStorage();
+    Swal.fire(
+        'Deletado!',
+        'Sua tarefa foi deletada.',
+        'success'
+    )
 }
-
-function addDnDHandlers(elem) {
-    elem.addEventListener('dragstart', handleDragStart, false);
-    elem.addEventListener('dragover', handleDragOver, false);
-    elem.addEventListener('dragenter', handleDragEnter, false);
-    elem.addEventListener('dragleave', handleDragLeave, false);
-    elem.addEventListener('drop', handleDrop, false);
-    elem.addEventListener('dragend', handleDragEnd, false);
+})
 }
 
 function addTask(columnId) {
-    const task = document.createElement('div');
-    task.className = 'task';
-    task.draggable = true;
-    const taskDescription = prompt('Insira o nome da tarefa');
-    task.innerText = taskDescription;
-    task.oncontextmenu = function(e) {
-        e.preventDefault();
-        if (confirm('Você quer deletar esta tarefa?')) {
-            task.remove();
+    Swal.fire({
+        title: 'Digite a descrição da tarefa:',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Adicionar',
+        showLoaderOnConfirm: true,
+        preConfirm: (taskDescriptionText) => {
+            if (taskDescriptionText === '' || taskDescriptionText.trim() === '') {
+                Swal.showValidationMessage('Por favor, insira uma descrição para a tarefa.')
+            }
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const task = document.createElement('div');
+            task.className = 'task';
+            task.draggable = true;
+            task.id = Math.random().toString(36).substring(2);
+            task.ondragstart = drag;
+
+            const taskDescription = document.createElement('span');
+            taskDescription.innerText = result.value;
+            task.appendChild(taskDescription);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Deletar';
+            deleteButton.style.float = 'right';
+            deleteButton.onclick = function(e) {
+                e.stopPropagation();
+                deleteTask(task);
+            };
+            task.appendChild(deleteButton);
+
+            const column = document.getElementById(columnId);
+            column.appendChild(task);
             saveTasksToLocalStorage();
         }
-    };
-    const column = document.getElementById(columnId);
-    column.appendChild(task);
-    addDnDHandlers(task);
-    saveTasksToLocalStorage();
+    })
 }
 
 function saveTasksToLocalStorage() {
-    const columns = document.getElementsByClassName('column');
-    const tasks = Array.from(columns).map(column => Array.from(column.getElementsByClassName('task')).map(task => task.innerText));
+    const columns = document.getElementsByClassName('kanban-column');
+    const tasks = Array.from(columns).map(column => Array.from(column.getElementsByClassName('task')).map(task => task.firstChild.innerText));
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 function loadTasksFromLocalStorage() {
     const tasks = JSON.parse(localStorage.getItem('tasks'));
     if (tasks) {
-        const columns = document.getElementsByClassName('column');
+        const columns = document.getElementsByClassName('kanban-column');
         tasks.forEach((columnTasks, columnIndex) => {
             columnTasks.forEach(taskDescription => {
                 const task = document.createElement('div');
                 task.className = 'task';
                 task.draggable = true;
-                task.innerText = taskDescription;
+                task.id = Math.random().toString(36).substring(2);
+                task.ondragstart = drag;
+
+                const taskDescriptionElement = document.createElement('span');
+                taskDescriptionElement.innerText = taskDescription;
+                task.appendChild(taskDescriptionElement);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Deletar';
+                deleteButton.style.float = 'right';
+                deleteButton.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteTask(task);
+                };
+                task.appendChild(deleteButton);
+
                 columns[columnIndex].appendChild(task);
-                addDnDHandlers(task);
             });
         });
     }
